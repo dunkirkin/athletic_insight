@@ -8,8 +8,9 @@ from .models import DailyLog
 # Create your views here.
 
 # Lets the daily log be seen on the website as non-admin
+@login_required
 def logs_view(request):
-    logs = DailyLog.objects.all().prefetch_related("activities")
+    logs = DailyLog.objects.filter(user=request.user).prefetch_related("activities")
     return render(request, "workouts/logs.html", {"logs": logs})
 
 # allows user to post logs, but requires a log in

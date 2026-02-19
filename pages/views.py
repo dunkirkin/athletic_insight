@@ -4,5 +4,9 @@ from django.shortcuts import render
 # Create your views here.
 
 # Base home page
-def home_view(*args, **kwargs):
-    return HttpResponse("<h1>home page</h1>")
+from django.shortcuts import redirect
+
+def home_view(request):
+    if request.user.is_authenticated:
+        return redirect("logs")  # or "dashboard" later
+    return redirect("login")
