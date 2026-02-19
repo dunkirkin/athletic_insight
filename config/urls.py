@@ -18,10 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from pages.views import home_view
 from django.contrib.auth import views as auth_views
+from django.views.generic import RedirectView
 
 urlpatterns = [
     # Home page
-    path('', home_view, name='home'),
+    path('', RedirectView.as_view(url='/accounts/login', permanent=False)),
 
     path('admin/', admin.site.urls),
     
