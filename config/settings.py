@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     #own
     'pages',
     'workouts',
-    'accounts'
+    'accounts',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
