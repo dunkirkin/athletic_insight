@@ -1,9 +1,75 @@
 <h1>Add Activity for {{ log.date }}</h1>
 
+<style>
+    body {
+    background-image: url("/static/images/sunset_running.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+  }
+
+
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  input, select {
+    padding: 6px;
+    font-size: 14px;
+  }
+
+  .small-input {
+    width: 60px;
+  }
+
+  .medium-input {
+    width: 200px;
+  }
+
+  .distance-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .submit-btn {
+    margin-top: 15px;
+    padding: 6px 14px;
+  }
+</style>
+
 <form method="post">
   {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Add</button>
-</form>
 
-<p><a href="/logs/">Back to logs</a></p>
+  <div class="form-group">
+    {{ form.name_of_activity.label_tag }}<br>
+    {{ form.name_of_activity }}
+  </div>
+
+  <div class="form-group">
+    {{ form.activity_type.label_tag }}<br>
+    {{ form.activity_type }}
+  </div>
+
+  <div class="form-group">
+    {{ form.duration_min.label_tag }}<br>
+    {{ form.duration_min }}
+  </div>
+
+  <div class="form-group">
+    {{ form.distance.label_tag }}<br>
+    <div class="distance-group">
+      {{ form.distance }}
+      {{ form.distance_unit }}
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{ form.rpe.label_tag }}<br>
+    {{ form.rpe }}
+  </div>
+
+  <button type="submit" class="submit-btn">Add</button>
+</form>

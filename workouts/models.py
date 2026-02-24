@@ -33,6 +33,8 @@ class DailyLog(models.Model):
 # #Mulitple activites per day
 class Activity(models.Model):
 
+    name_of_activity = models.CharField(max_length=50, default="")
+
     ACTIVITY_CHOICES = [
         ("Run", "Run"),
         ("Walk", "Walk"),
@@ -45,12 +47,20 @@ class Activity(models.Model):
         ("Swim", "Swim"),
         ("Other", "Other")
     ]
+
+    DISTANCE_UNITS = [
+        ("Miles", "mi"),
+        ("Kilometers", "km"),
+        ("Meters", "m"),
+        ("Yards", "yd")
+    ]
     daily_log = models.ForeignKey(DailyLog, on_delete=models.CASCADE, related_name="activities")
     #This line makes it so each activity belongs to one daily log
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_CHOICES)
     duration_min = models.PositiveIntegerField(default=0)
     rpe = models.PositiveSmallIntegerField(null=True, blank=True) #rpe= Rate of Perceived Exertion so how hard they think it was
     distance = models.FloatField(null=True, blank=True)
+    distance_unit = models.CharField(max_length=10, choices=DISTANCE_UNITS, default="mi", null=True, blank="mi")
 
     created_at = models.DateTimeField(auto_now_add=True)
 
