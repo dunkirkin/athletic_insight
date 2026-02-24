@@ -17,12 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from pages.views import home_view
-from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 
 urlpatterns = [
     # Home page
-    path('', RedirectView.as_view(url='/accounts/login', permanent=False)),
+    path('', RedirectView.as_view(url='/accounts/login/', permanent=False)),
 
     path('admin/', admin.site.urls),
     
@@ -31,10 +30,6 @@ urlpatterns = [
 
     # Accounts
     path('accounts/', include('accounts.urls')),
-
-    # Built-in login/logout
-    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
-    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
 
     #Dashboard View
     path('dashboard/', include('dashboard.urls'))
