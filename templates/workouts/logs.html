@@ -1,38 +1,169 @@
+{% load static %}
 
-<div style="display:flex; justify-content: space-between; align-items:center;">
-  <h1>Daily Logs</h1>
-  <form method="post" action="{% url 'logout' %}" style="margin:0;">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-  </form>
+<style>
+  body {
+    background-image: url("/static/images/random_bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    padding: 40px 0;
+  }
+
+  .form-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 10px;
+    width: 700px;
+    max-width: calc(100vw - 40px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  .form-container h2 {
+    margin-bottom: 25px;
+    text-align: center;
+  }
+
+  .submit-btn {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .submit-btn:hover {
+    opacity: 0.85;
+  }
+
+  .brand {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    color: black;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  .log-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 14px 0;
+  }
+
+  .log-card h3 {
+    margin: 0 0 8px 0;
+  }
+
+  .muted {
+    color: #555;
+    font-size: 14px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .link-btn {
+    padding: 8px 10px;
+    background: black;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+  }
+
+  .link-btn:hover {
+    opacity: 0.85;
+  }
+
+  .danger-btn {
+    padding: 8px 10px;
+    background: #b00020;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .danger-btn:hover {
+    opacity: 0.85;
+  }
+
+  ul {
+    margin: 8px 0 0 18px;
+  }
+</style>
+
+<div class="brand">Athletic Insight</div>
+
+<div class="form-container">
+  <h2>Your Daily Logs</h2>
+
+  <a href="/logs/new/" class="submit-btn">+ New Daily Log</a>
+
+  {% for log in logs %}
+    <div class="log-card">
+      <h3>{{ log.date }}</h3>
+      <div class="muted">
+        Sleep: {{ log.sleep_hours }} hrs | Quality: {{ log.sleep_quality }} |
+        Wellness: {{ log.wellness }} | Stress: {{ log.stress }}
+      </div>
+
+      <div class="muted">
+        Recovery score: {{ log.recovery_score }} |
+        Activity score: {{ log.activity_score }} |
+        Grand total: {{ log.grand_total }}
+      </div>
+
+      {% if log.notes %}
+        <p>{{ log.notes }}</p>
+      {% endif %}
+
+      <div class="actions">
+        <a class="link-btn" href="/logs/{{ log.id }}/activity/new/">+ Add activity</a>
+
+        <form method="post" action="/logs/{{ log.id }}/delete/" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit" class="danger-btn">Delete log</button>
+        </form>
+      </div>
+
+      <h4 style="margin-top:14px;">Activities</h4>
+      <ul>
+        {% for a in log.activities.all %}
+          <li>
+            <strong>{{ a.activity_type }}</strong>
+            {% if a.name_of_activity %}- {{ a.name_of_activity }}{% endif %}
+            — {{ a.duration_min }} min
+            {% if a.rpe %} (RPE {{ a.rpe }}){% endif %}
+            {% if a.distance %} | {{ a.distance }} {{ a.distance_unit }}{% endif %}
+          </li>
+        {% empty %}
+          <li>No activities yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% empty %}
+    <p class="muted" style="text-align:center; margin-top:20px;">
+      No logs yet. Click “New Daily Log” to create one.
+    </p>
+  {% endfor %}
 </div>
-
-<a href="/dashboard/">Dashboard</a>
-<p><a href="/logs/new/">+ New log</a></p>
-
-{% for log in logs %}
-  <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
-    <p><a href="/logs/{{ log.id }}/activity/new/">+ Add activity</a></p>
-    <h2>{{ log.user.username }} — {{ log.date }}</h2>
-    <p>Sleep: {{ log.sleep_hours }} hours (quality {{ log.sleep_quality }})</p>
-    <p>Wellness 1-10: {{ log.wellness }} | Stress 1-10: {{ log.stress }}</p>
-    <p>{{ log.notes }}</p>
-
-    <h3>Activities</h3>
-    <ul>
-      {% for a in log.activities.all %}
-        <li>{{ a.activity_type }} — {{ a.duration_min }} min (RPE {{ a.rpe }})</li>
-      {% empty %}
-        <li>No activities</li>
-      {% endfor %}
-
-    <form method="post" action="/logs/{{ log.id }}/delete/" style="display:inline;">
-    {% csrf_token %}
-    <button type="submit">Delete Daily Log</button>
-    </form>
-
-    </ul>
-  </div>
-{% empty %}
-  <p>No logs yet.</p>
-{% endfor %}

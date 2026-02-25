@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 # Create your models here.
 # This will represent one calendar day for a specfic user
 #Stores recovery and wellness for entire day
@@ -10,9 +12,20 @@ class DailyLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="daily_logs")
     date = models.DateField()
     sleep_hours = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
-    sleep_quality = models.PositiveSmallIntegerField(null=True, blank=True)
-    wellness = models.PositiveSmallIntegerField(null=True, blank=True)
-    stress = models.PositiveSmallIntegerField(null=True, blank=True)
+    # limiting the user input to 1-10 for sleep quality, wellness, and stress
+    sleep_quality = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
+    wellness = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
+    stress = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
+    
     notes = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -26,7 +39,25 @@ class DailyLog(models.Model):
         return f"{self.user.username} - {self.date}"
         #This will control how this object appears in admin
         #an example output would be jake - 2026-02-11
+        
+    # this is to total up the scores for sleep, wellness, and stress
+    @property
+    def recovery_score(self):
+        sleep = self.sleep_quality or 0
+        wellness = self.wellness or 0
+        stress = self.stress or 0
 
+        return sleep + wellness - stress
+    
+    # total up score for the rpe
+    @property
+    def activity_score(self):
+        return sum((a.rpe or 0) for a in self.activities.all())
+    
+    #total up the recovery and activity
+    @property
+    def grand_total(self):
+        return self.recovery_score + self.activity_score
     
 #This represents one single workout session
 #Wanted to seperate this and daily log so people can put in 
@@ -58,7 +89,11 @@ class Activity(models.Model):
     #This line makes it so each activity belongs to one daily log
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_CHOICES)
     duration_min = models.PositiveIntegerField(default=0)
-    rpe = models.PositiveSmallIntegerField(null=True, blank=True) #rpe= Rate of Perceived Exertion so how hard they think it was
+    # limiting user input to 1-10 for rpe too
+    rpe = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    ) #rpe= Rate of Perceived Exertion so how hard they think it was
     distance = models.FloatField(null=True, blank=True)
     distance_unit = models.CharField(max_length=10, choices=DISTANCE_UNITS, default="Miles", null=True, blank=True)
 
