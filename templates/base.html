@@ -1,0 +1,97 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Athletic Insight</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-image: url("/static/images/random_bg.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #111;
+      color: white;
+      padding: 30px 20px;
+      box-sizing: border-box;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      margin-bottom: 30px;
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .sidebar a:hover {
+      opacity: 0.7;
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+
+    .content-card {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="sidebar">
+      <h2>Athletic Insight</h2>
+      <a href="/dashboard/">Dashboard</a>
+      <a href="/logs/">Daily Logs</a>
+      <a href="#">Tomorrow Plan</a>
+      <a href="#">History</a>
+      <form action="/accounts/logout/" method="post" style="margin-top:10px;">
+        {% csrf_token %}
+        <button type="submit" style="
+            background:none;
+            border:none;
+            color:white;
+            font-size:18px;
+            cursor:pointer;
+            padding:0;
+            text-align:left;
+        ">
+          Logout
+        </button>
+      </form>
+    </div>
+
+    <div class="main">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</body>
+</html>

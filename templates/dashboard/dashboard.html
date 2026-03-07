@@ -1,55 +1,8 @@
-
+{% extends "base.html" %}
 {% load static %}
 
+{% block content %}
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-  }
-
-  .layout {
-    display: flex;
-    min-height: 100vh;
-  }
-
-  /* Sidebar */
-  .sidebar {
-    width: 220px;
-    background-color: #111;
-    color: white;
-    padding: 30px 20px;
-  }
-
-  .sidebar h2 {
-    margin-top: 0;
-    margin-bottom: 30px;
-    font-size: 20px;
-    letter-spacing: 1px;
-  }
-
-  .sidebar a {
-    display: block;
-    color: white;
-    text-decoration: none;
-    margin-bottom: 15px;
-    font-size: 18px;
-  }
-
-  .sidebar a:hover {
-    opacity: 0.7;
-  }
-
-  /* Main Content */
-  .main {
-    flex: 1;
-    padding: 40px;
-  }
-
-  .main h1 {
-    margin-top: 0;
-  }
-
   .metrics-grid {
     margin-top: 30px;
     display: grid;
@@ -73,27 +26,12 @@
     margin-bottom: 6px;
   }
 
-  .metric-range {
-    text-align: center;
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 25px;
-  }
-
   .metric-value {
     text-align: center;
     font-size: 18px;
     margin-bottom: 8px;
   }
 
-  .metric-subtext {
-    text-align: center;
-    font-size: 14px;
-    color: #777;
-  }
-
-  
-  
   .chart-container {
     margin-top: 25px;
     display: flex;
@@ -123,63 +61,33 @@
     font-size: 12px;
     color: #555;
   }
-
 </style>
 
-<div class="layout">
-  
-  <div class="sidebar">
-    <h2>Athletic Insight</h2>
-    <a href="/dashboard/">Dashboard</a>
-    <a href="/logs/">Daily Logs</a>
-    <a href="#">Tomorrow Plan</a>
-    <a href="#">History</a>
-    <a href="/accounts/logout/">Logout</a>
-  </div>
+<h1>Training Metrics</h1>
+<p>Welcome {{ request.user.username }}</p>
 
-  <div class="main">
-    <h1>Training Metrics</h1>
-    <p>Welcome {{ request.user.username }}</p>
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-title">
+      Activity Summary || {{ seven_days_ago|date:"M j" }} - {{ today|date:"M j" }}
+    </div>
 
-    <div class="metrics-grid">
+    <div class="metric-value">
+      Total Activity Duration: {{ total_hours }}h {{ mins }}m || {{ act_count }} activities completed
+    </div>
 
-      <div class="metric-card">
-        <div class="metric-title">Activity Summary || {{seven_days_ago|date:"M j"}} - {{today|date:"M j"}}</div>
-
-       <div class="metric-value">
-           Total Activity Duration: {{total_hours}}h {{mins}}m || {{act_count}} activities completed
-       </div>
-
-       <div class="chart-container">
-        {% for item in chart_data %}
-          <div class="bar-wrapper">
-            <div class="bar"
-                 style="height: {{ item.height_percent }}%;">
-            </div>
-            <div class="bar-label">
-              {{ item.day_label }}
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-
-
-
-      </div>
-
-      <div class="metric-card">
-        <h3>Metric 2</h3>
-      </div>
-
-      <div class="metric-card">
-        <h3>Metric 3</h3>
-      </div>
-
-      <div class="metric-card">
-        <h3>Metric 4</h3>
-      </div>
-
+    <div class="chart-container">
+      {% for item in chart_data %}
+        <div class="bar-wrapper">
+          <div class="bar" style="height: {{ item.height_percent }}%;"></div>
+          <div class="bar-label">{{ item.day_label }}</div>
+        </div>
+      {% endfor %}
     </div>
   </div>
 
+  <div class="metric-card"><h3>Metric 2</h3></div>
+  <div class="metric-card"><h3>Metric 3</h3></div>
+  <div class="metric-card"><h3>Metric 4</h3></div>
 </div>
+{% endblock %}

@@ -10,7 +10,7 @@ from datetime import timedelta
 def dashboard_view(request):
     #Dates
     today = timezone.now().date()
-    seven_days_ago = today - timedelta(days=7)
+    seven_days_ago = today - timedelta(days=6)
 
     #Overall Activty Metric
 
