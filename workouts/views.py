@@ -10,11 +10,15 @@ from .models import DailyLog
 # Lets the daily log be seen on the website as non-admin
 @login_required
 def logs_view(request):
-    logs = DailyLog.objects.filter(user=request.user).prefetch_related("activities")
+    logs = (
+        DailyLog.objects
+        .filter(user=request.user)
+        .prefetch_related("activities")
+        .order_by("-date")
+    )
     return render(request, "workouts/logs.html", {"logs": logs})
 
 # allows user to delete logs
-# bugs out if try to delete other user's log
 @login_required
 def log_delete(request, log_id):
     log = get_object_or_404(DailyLog, id=log_id, user=request.user)

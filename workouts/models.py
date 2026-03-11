@@ -59,6 +59,19 @@ class DailyLog(models.Model):
     def grand_total(self):
         return self.recovery_score + self.activity_score
     
+    @property
+    def workout_recommendation(self):
+        score = self.grand_total
+
+        if score <= 5:
+            return "Take a rest day or very light activity."
+        elif score <= 15:
+            return "Light workout recommended."
+        elif score <= 25:
+            return "Moderate workout recommended."
+        else:
+            return "You are recovered. Hard workout is okay."
+    
 #This represents one single workout session
 #Wanted to seperate this and daily log so people can put in 
 # #Mulitple activites per day
@@ -104,6 +117,3 @@ class Activity(models.Model):
         #Will be stored in admin 
         #Example output would be 
         #Run (45 min) - 2026-02-11
-
-
-

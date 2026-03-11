@@ -53,6 +53,21 @@
     font-size: 14px;
   }
 
+  .score {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .recommendation {
+    background: #eef6ff;
+    border-left: 5px solid #2c6cff;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
   .actions {
     display: flex;
     gap: 10px;
@@ -93,6 +108,15 @@
 </style>
 
 <div class="form-container">
+  <div style="display:flex; justify-content: space-between; margin-bottom: 15px;">
+    <a href="{% url 'dashboard' %}" class="link-btn">Dashboard</a>
+
+    <form method="post" action="{% url 'logout' %}" style="margin:0;">
+      {% csrf_token %}
+      <button type="submit" class="danger-btn">Logout</button>
+    </form>
+  </div>
+
   <h2>Your Daily Logs</h2>
 
   <a href="/logs/new/" class="submit-btn">+ New Daily Log</a>
@@ -100,15 +124,18 @@
   {% for log in logs %}
     <div class="log-card">
       <h3>{{ log.date }}</h3>
+
       <div class="muted">
         Sleep: {{ log.sleep_hours }} hrs | Quality: {{ log.sleep_quality }} |
         Wellness: {{ log.wellness }} | Stress: {{ log.stress }}
       </div>
 
-      <div class="muted">
-        Recovery score: {{ log.recovery_score }} |
-        Activity score: {{ log.activity_score }} |
-        Grand total: {{ log.grand_total }}
+      <div class="score">
+        Total Score: {{ log.grand_total }}
+      </div>
+
+      <div class="recommendation">
+        <strong>Recommendation:</strong> {{ log.workout_recommendation }}
       </div>
 
       {% if log.notes %}

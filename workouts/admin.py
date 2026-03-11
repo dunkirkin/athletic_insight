@@ -14,7 +14,6 @@ class DailyLogAdmin(admin.ModelAdmin):
     inlines = [ActivityInline]
     list_display = ("user", "date", "sleep_hours", "wellness")
 
-
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
     list_display = ("activity_type", "duration_min", "daily_log")
