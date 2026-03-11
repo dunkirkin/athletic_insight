@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from workouts.models import Activity
+from workouts.models import DailyLog
 from django.db.models import Sum, Count, F, ExpressionWrapper, FloatField
 from django.utils import timezone
 from datetime import timedelta
@@ -74,6 +75,32 @@ def dashboard_view(request):
     load_percent = min((avg_daily_load / max_daily_load) * 100, 100)
 
 
+    #Recovery Score
+    #Based on Sleep hours, sleep quality
+    logs = DailyLog.objects.filter(
+    user=request.user,
+    date__range=(seven_days_ago, today)
+)
+    total7day_wellness = logs.aggregate(total=Sum("wellness"))["total"] or 0
+    stress_totals = logs.aggregate(total=Sum("stress"))["total"] or 0
+    avg_wellness = round(total7day_wellness/7, 2)
+    avg_stress = round(stress_totals/7, 2)
+
+    wellness_by_day = {entry.date: entry for entry in logs}
+    wellness_chart_data = []
+    max_stress_well = 11
+    for i in range(7):
+        day = seven_days_ago + timedelta(days=i)
+        log_entry = wellness_by_day.get(day)
+        wellness_chart_data.append({
+            "day_label": day.strftime("%a"),
+            "wellness": log_entry.wellness if log_entry and log_entry.wellness else 0,
+            "stress": log_entry.stress if log_entry and log_entry.stress else 0,
+            "stress_height": int(((log_entry.stress if log_entry and log_entry.stress else 0) / max_stress_well) * 100),
+            "wellness_height": int(((log_entry.wellness if log_entry and log_entry.wellness else 0) / max_stress_well) * 100)
+        })
+
+
     context = {
         "today" : today,
         "seven_days_ago" : seven_days_ago,
@@ -83,6 +110,9 @@ def dashboard_view(request):
         "daily_total_mins" : daily_total_mins,
         "chart_data": chart_data,
         "training_load": round(avg_daily_load, 1),
-        "load_percent": load_percent
+        "load_percent": load_percent,
+        "avg_wellness": avg_wellness,
+        "avg_stress": avg_stress,
+        "wellness_chart_data": wellness_chart_data,
     }
     return render(request, "dashboard/dashboard.html", context)
