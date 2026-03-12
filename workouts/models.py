@@ -15,15 +15,15 @@ class DailyLog(models.Model):
     # limiting the user input to 1-10 for sleep quality, wellness, and stress
     sleep_quality = models.PositiveSmallIntegerField(
         null=True, blank=True,
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
     )
     wellness = models.PositiveSmallIntegerField(
         null=True, blank=True,
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
     )
     stress = models.PositiveSmallIntegerField(
         null=True, blank=True,
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
     )
     
     notes = models.TextField(blank=True)

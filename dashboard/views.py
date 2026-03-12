@@ -101,6 +101,53 @@ def dashboard_view(request):
         })
 
 
+    #Sleep Score Metrics
+    sleep_weekly_total = logs.aggregate(total=Sum("sleep_hours"))["total"] or 0
+    quality_weekly_total = logs.aggregate(total=Sum("sleep_quality"))["total"] or 0
+
+    avg_quality = float(round(quality_weekly_total/7,2))
+    avg_sleep_duration = float(round(sleep_weekly_total/7, 2))
+
+    duration_score = min((avg_sleep_duration / 9) * 100, 100)
+    quality_score = (avg_quality / 10) * 100
+    sleep_score = round((duration_score * 0.6) + (quality_score * 0.4))
+    gauge_degrees = int((sleep_score / 100) * 180)
+
+    # Sleep line chart data (past 7 days)
+    sleep_by_day = {entry.date: entry for entry in logs}
+    sleep_chart_data = []
+    for i in range(7):
+        day = seven_days_ago + timedelta(days=i)
+        log_entry = sleep_by_day.get(day)
+        daily_sleep = min((log_entry.sleep_hours / 9) * 100, 100) if log_entry and log_entry.sleep_hours else 0
+        daily_quality = ((log_entry.sleep_quality / 10) * 100) if log_entry and log_entry.sleep_quality else 0
+        daily_score = round((float(daily_sleep) * 0.6) + (daily_quality * 0.4))
+        sleep_chart_data.append({
+            "day_label": day.strftime("%a"),
+            "daily_score": daily_score
+        })
+
+    # Pre-calculate SVG points in the view so the template stays simple.
+    chart_width = 280
+    chart_height = 140
+    pad_left, pad_right, pad_top, pad_bottom = 18, 12, 10, 30
+    plot_width = chart_width - pad_left - pad_right
+    plot_height = chart_height - pad_top - pad_bottom
+    point_count = len(sleep_chart_data)
+
+    for idx, item in enumerate(sleep_chart_data):
+        if point_count > 1:
+            x = pad_left + (plot_width * idx / (point_count - 1))
+        else:
+            x = pad_left + (plot_width / 2)
+        y = pad_top + ((100 - item["daily_score"]) / 100) * plot_height
+        item["x"] = round(x, 1)
+        item["y"] = round(y, 1)
+        item["label_y"] = chart_height - 8
+
+    sleep_line_points = " ".join(f'{item["x"]},{item["y"]}' for item in sleep_chart_data)
+
+
     context = {
         "today" : today,
         "seven_days_ago" : seven_days_ago,
@@ -114,5 +161,9 @@ def dashboard_view(request):
         "avg_wellness": avg_wellness,
         "avg_stress": avg_stress,
         "wellness_chart_data": wellness_chart_data,
+        "sleep_score": sleep_score,
+        "gauge_degrees": gauge_degrees,
+        "sleep_chart_data": sleep_chart_data,
+        "sleep_line_points": sleep_line_points
     }
     return render(request, "dashboard/dashboard.html", context)

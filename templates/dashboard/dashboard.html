@@ -156,6 +156,72 @@
   border-radius: 5px;
   width: 500px;
 }
+
+  .sleep_score_container {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  clip-path: inset(0 0 50% 0);
+	}
+
+  .sleep-gauge-wrap {
+    overflow: hidden;
+    width: 160px;
+    height: 80px;
+    margin: 20px auto 0 auto;
+    position: relative;
+  }
+
+  .sleep-gauge {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 270deg,
+      #f00f0f 0deg,
+      #0df915 var(--gauge-degrees),
+      #ddd var(--gauge-degrees),
+      #ddd 180deg,
+      transparent 180deg
+    );
+  }
+
+  .sleep-gauge-inner {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: rgba(137,137,137,0.85);
+    border-radius: 50%;
+    top: 30px;
+    left: 30px;
+  }
+
+  .sleep-line-chart {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .sleep-line {
+    fill: none;
+    stroke: #0b6cff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .sleep-point {
+    fill: #0b6cff;
+  }
+
+  .sleep-x-label {
+    font-size: 11px;
+    fill: #1b1b1b;
+    text-anchor: middle;
+  }
 </style>
 
 
@@ -253,6 +319,27 @@
 
 
 
-  <div class="metric-card"><h3>Metric 4</h3></div>
+  <div class="metric-card">
+    <div class="metric-title">Sleep Score</div>
+
+    <div class="sleep-gauge-wrap">
+      <div class="sleep-gauge" style="--gauge-degrees: {{gauge_degrees}}deg;">
+        <div class="sleep-gauge-inner"></div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:10px; font-size:32px; font-weight:bold;">{{sleep_score}}</div>
+    <div style="text-align:center; font-size:13px;">/ 100</div>
+
+    <div class="sleep-line-chart">
+      <svg viewBox="0 0 280 140" width="280" height="140" role="img" aria-label="Past 7 days sleep score line chart">
+        <polyline class="sleep-line" points="{{ sleep_line_points }}"></polyline>
+        {% for item in sleep_chart_data %}
+          <circle class="sleep-point" cx="{{ item.x }}" cy="{{ item.y }}" r="4"></circle>
+          <text class="sleep-x-label" x="{{ item.x }}" y="{{ item.label_y }}">{{ item.day_label }}</text>
+        {% endfor %}
+      </svg>
+    </div>
+  </div>
 </div>
 {% endblock %}
