@@ -167,3 +167,15 @@ def dashboard_view(request):
         "sleep_line_points": sleep_line_points
     }
     return render(request, "dashboard/dashboard.html", context)
+@login_required
+def activity_summary_view(request):
+    return render(request, "dashboard/activity_summary.html")
+
+def training_load_view(request):
+    return render(request, "dashboard/training_load.html")
+
+def wellness_stress_view(request):
+    return render(request, "dashboard/wellness_stress.html")
+
+def sleep_score_view(request):
+    return render(request, "dashboard/sleep_score.html")

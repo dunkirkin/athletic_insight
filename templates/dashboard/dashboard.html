@@ -18,6 +18,9 @@
     min-height: 200px;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
   }
 
   .metric-card:hover {
@@ -154,7 +157,7 @@
   background: rgba(1, 13, 16, 0.55);
   padding: 5px;
   border-radius: 5px;
-  width: 500px;
+  width: 550px;
 }
 
   .sleep_score_container {
@@ -231,7 +234,7 @@
 <p>Welcome {{ request.user.username }}</p>
 
 <div class="metrics-grid">
-  <div class="metric-card">
+  <a href="{% url 'activity_summary' %}" class="metric-card">
     <div class="metric-title">
       Activity Summary
     </div>
@@ -248,18 +251,18 @@
         </div>
       {% endfor %}
     </div>
-  </div>
+  </a>
 
-  <div class="metric-card">
+  <a href="{% url 'training_load' %}" class="metric-card">
 
       <div class="metric-title">
         Training Load
       </div>
-    
+
       <div class="metric-value">
         {{training_load}}
       </div>
-    
+
       <div class="load-container">
 
   <div class="load-bar">
@@ -288,9 +291,9 @@
     <span>900–1200</span>
   </div>
 </div>
-    
-  </div>
-  <div class="metric-card">
+
+  </a>
+  <a href="{% url 'wellness_stress' %}" class="metric-card">
     <div class="metric-title">Wellness vs Stress</div>
     <div class="metric-value">Avg Wellness: {{avg_wellness}} &nbsp;|&nbsp; Avg Stress: {{avg_stress}}</div>
 
@@ -314,12 +317,12 @@
         </div>
       {% endfor %}
     </div>
-  </div>
+  </a>
 
 
 
 
-  <div class="metric-card">
+  <a href="{% url 'sleep_score' %}" class="metric-card">
     <div class="metric-title">Sleep Score</div>
 
     <div class="sleep-gauge-wrap">
@@ -340,6 +343,6 @@
         {% endfor %}
       </svg>
     </div>
-  </div>
+  </a>
 </div>
 {% endblock %}
