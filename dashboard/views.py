@@ -107,9 +107,9 @@ def dashboard_view(request):
     for i in range(7):
         day = seven_days_ago + timedelta(days=i)
         log_entry = sleep_by_day.get(day)
-        daily_sleep = min((log_entry.sleep_hours / 9) * 100, 100) if log_entry and log_entry.sleep_hours else 0
-        daily_quality = ((log_entry.sleep_quality / 10) * 100) if log_entry and log_entry.sleep_quality else 0
-        daily_score = round((float(daily_sleep) * 0.6) + (daily_quality * 0.4))
+        daily_sleep = float(min((log_entry.sleep_hours / 9) * 100, 100)) if log_entry and log_entry.sleep_hours else 0.0
+        daily_quality = float((log_entry.sleep_quality / 10) * 100) if log_entry and log_entry.sleep_quality else 0.0
+        daily_score = round((daily_sleep * 0.6) + (daily_quality * 0.4))
         sleep_chart_data.append({"day_label": day.strftime("%a"), "daily_score": daily_score})
 
     chart_width = 280

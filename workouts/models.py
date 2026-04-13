@@ -13,18 +13,9 @@ class DailyLog(models.Model):
     date = models.DateField()
     sleep_hours = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     # limiting the user input to 1-10 for sleep quality, wellness, and stress
-    sleep_quality = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        validators=[MinValueValidator(0), MaxValueValidator(10)]
-    )
-    wellness = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        validators=[MinValueValidator(0), MaxValueValidator(10)]
-    )
-    stress = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        validators=[MinValueValidator(0), MaxValueValidator(10)]
-    )
+    sleep_quality = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+    wellness = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+    stress = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     
     notes = models.TextField(blank=True)
 
@@ -101,7 +92,7 @@ class Activity(models.Model):
     daily_log = models.ForeignKey(DailyLog, on_delete=models.CASCADE, related_name="activities")
     #This line makes it so each activity belongs to one daily log
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_CHOICES)
-    duration_min = models.PositiveIntegerField(default=0)
+    duration_min = models.PositiveIntegerField()
     # limiting user input to 1-10 for rpe too
     rpe = models.PositiveSmallIntegerField(
         null=True, blank=True,
