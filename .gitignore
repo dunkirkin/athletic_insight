@@ -16,3 +16,6 @@ db.sqlite3
 
 # Mac junk (optional)
 .DS_Store
+
+# Local learning/notes files (not for repo)
+CHANGES_LOG.md

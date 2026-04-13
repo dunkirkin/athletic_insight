@@ -1,5 +1,247 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block content %}
+<style>
+  .detail-header {
+    background: rgba(1, 13, 16, 0.55);
+    padding: 6px 14px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+  .back-link {
+    display: inline-block;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .back-link:hover { color: white; }
 
-<title>Training Load</title>
+  .section-card {
+    background: rgba(130, 130, 130, 0.93);
+    border-radius: 10px;
+    padding: 22px 26px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+    padding-bottom: 6px;
+  }
+
+  /* ── Load gauge bar ── */
+  .load-bar {
+    position: relative;
+    width: 100%;
+    height: 26px;
+    border-radius: 13px;
+    overflow: hidden;
+    margin: 18px 0 8px 0;
+  }
+  .load-gradient {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A, #FFC107, #FF9800, #FF5722);
+  }
+  .load-marker {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+  }
+  .load-dot {
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    background: black;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    box-shadow: 0 0 0 3px white;
+  }
+  .load-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 6px;
+  }
+  .load-sublabels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #222;
+    margin-top: 2px;
+  }
+
+  .zone-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 15px;
+    color: white;
+    margin-top: 10px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 14px;
+  }
+  .stat-box {
+    background: rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 10px 18px;
+    text-align: center;
+    flex: 1;
+  }
+  .stat-box .val { font-size: 26px; font-weight: bold; }
+  .stat-box .lbl { font-size: 12px; color: #222; margin-top: 2px; }
+
+  /* ── Week comparison ── */
+  .weekly-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .weekly-label { width: 110px; font-size: 13px; flex-shrink: 0; }
+  .weekly-bar-bg {
+    flex: 1;
+    height: 20px;
+    background: rgba(0,0,0,0.12);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .weekly-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #FFC107, #FF5722);
+    border-radius: 10px;
+  }
+  .weekly-meta { width: 100px; font-size: 12px; color: #111; text-align: right; flex-shrink: 0; }
+
+  /* ── Per-activity list ── */
+  .act-row {
+    margin-bottom: 14px;
+  }
+  .act-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .act-meta {
+    font-size: 12px;
+    color: #222;
+    margin-bottom: 5px;
+  }
+  .act-bar-bg {
+    height: 10px;
+    background: rgba(0,0,0,0.12);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .act-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #4CAF50, #FFC107, #FF5722);
+  }
+</style>
+
+<div class="detail-header">
+  <h1 style="color:white; margin:0;">Training Load</h1>
+</div>
+<p style="color:rgba(255,255,255,0.75); margin-top:4px; font-size:13px;">
+  {{ seven_days_ago|date:"M j" }} – {{ today|date:"M j, Y" }}
+</p>
+<a class="back-link" href="{% url 'dashboard' %}">← Back to Dashboard</a>
+
+<!-- ── Current week summary ── -->
+<div class="section-card">
+  <div class="section-title">This Week's Load</div>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="val">{{ training_load }}</div>
+      <div class="lbl">Avg Daily Load</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">{{ weekly_load_total }}</div>
+      <div class="lbl">Total Weekly Load</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">
+        <span class="zone-badge" style="background: {{ zone_color }};">{{ zone_label }}</span>
+      </div>
+      <div class="lbl">Zone</div>
+    </div>
+  </div>
+
+  <div class="load-bar">
+    <div class="load-gradient"></div>
+    <div class="load-marker" style="left:25%;"></div>
+    <div class="load-marker" style="left:50%;"></div>
+    <div class="load-marker" style="left:75%;"></div>
+    <div class="load-dot" style="left: {{ load_percent }}%;"></div>
+  </div>
+  <div class="load-labels">
+    <span>Low</span><span>Moderate</span><span>High</span><span>Overreaching</span>
+  </div>
+  <div class="load-sublabels">
+    <span>0–300</span><span>300–600</span><span>600–900</span><span>900–1200</span>
+  </div>
+
+</div>
+
+<!-- ── 4-week comparison ── -->
+<div class="section-card">
+  <div class="section-title">Week-over-Week Comparison (last 4 weeks)</div>
+  {% for w in weekly_loads %}
+    <div class="weekly-row">
+      <div class="weekly-label">{{ w.label }}</div>
+      <div class="weekly-bar-bg">
+        <div class="weekly-bar-fill" style="width: {{ w.bar_pct }}%;"></div>
+      </div>
+      <div class="weekly-meta">
+        Total: {{ w.total_load }}<br>
+        <span style="font-size:11px; color:#333;">Avg/day: {{ w.avg_daily }}</span>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- ── Per-activity breakdown ── -->
+<div class="section-card">
+  <div class="section-title">Per-Activity Load (this week)</div>
+  {% if acts_list %}
+    {% for a in acts_list %}
+      <div class="act-row">
+        <div class="act-header">
+          <span>{{ a.name_of_activity }} <span style="font-weight:400; font-size:13px;">({{ a.activity_type }})</span></span>
+          <span>Load: {{ a.load }}</span>
+        </div>
+        <div class="act-meta">
+          {{ a.daily_log__date|date:"M j" }}
+          &nbsp;·&nbsp; {{ a.duration_min }} min
+          &nbsp;·&nbsp; RPE {{ a.rpe }}
+        </div>
+        <div class="act-bar-bg">
+          <div class="act-bar-fill" style="width: {{ a.bar_pct }}%;"></div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p style="color:#333;">No activities logged this week.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
