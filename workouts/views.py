@@ -1,9 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import DailyLogForm, ActivityForm
-from .models import DailyLog
-
-from .models import DailyLog
+from .models import DailyLog, Activity
 
 # Create your views here.
 
@@ -48,6 +46,26 @@ def log_create(request):
         form = DailyLogForm()
 
     return render(request, "workouts/log_create.html", {"form": form})
+
+# history page — all activities ever logged, newest first
+@login_required
+def history_view(request):
+    activities = (
+        Activity.objects
+        .filter(daily_log__user=request.user)
+        .select_related("daily_log")
+        .order_by("-daily_log__date", "-created_at")
+    )
+    newest = activities.first()
+    oldest = activities.last()
+    context = {
+        "activities": activities,
+        "total_count": activities.count(),
+        "first_date": oldest.daily_log.date if oldest else None,
+        "last_date": newest.daily_log.date if newest else None,
+    }
+    return render(request, "workouts/history.html", context)
+
 
 # allowing user to add their activities
 @login_required
