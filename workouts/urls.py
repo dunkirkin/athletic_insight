@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import logs_view, log_create, activity_add, log_delete, history_view
+from .views import logs_view, log_create, activity_add, log_delete, history_view, tomorrow_view
 
 urlpatterns = [
     # can view the activity logs user inputs
@@ -12,4 +12,7 @@ urlpatterns = [
 
     # history page
     path("history/", history_view, name="history"),
+
+    # tomorrow's plan
+    path("tomorrow/", tomorrow_view, name="tomorrow"),
 ]
