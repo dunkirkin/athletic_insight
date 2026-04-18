@@ -38,25 +38,6 @@ class DailyLog(models.Model):
         daily_sleep = min(float(self.sleep_hours or 0) / 9 * 100, 100)
         daily_quality = float(self.sleep_quality or 0) / 10 * 100
         return round(daily_sleep * 0.6 + daily_quality * 0.4)
-
-    # this is to total up the scores for sleep, wellness, and stress
-    @property
-    def recovery_score(self):
-        sleep = self.sleep_quality or 0
-        wellness = self.wellness or 0
-        stress = self.stress or 0
-
-        return sleep + wellness - stress
-    
-    # total up score for the rpe
-    @property
-    def activity_score(self):
-        return sum((a.rpe or 0) for a in self.activities.all())
-    
-    #total up the recovery and activity
-    @property
-    def grand_total(self):
-        return self.recovery_score + self.activity_score
     
     @property
     def workout_recommendation(self):
