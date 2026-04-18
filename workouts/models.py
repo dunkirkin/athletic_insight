@@ -31,6 +31,14 @@ class DailyLog(models.Model):
         #This will control how this object appears in admin
         #an example output would be jake - 2026-02-11
         
+    @property
+    def sleep_score(self):
+        if not self.sleep_hours and not self.sleep_quality:
+            return None
+        daily_sleep = min(float(self.sleep_hours or 0) / 9 * 100, 100)
+        daily_quality = float(self.sleep_quality or 0) / 10 * 100
+        return round(daily_sleep * 0.6 + daily_quality * 0.4)
+
     # this is to total up the scores for sleep, wellness, and stress
     @property
     def recovery_score(self):

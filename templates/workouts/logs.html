@@ -44,19 +44,31 @@
     margin: 14px 0;
   }
 
-  .log-card h3 {
-    margin: 0 0 8px 0;
+  .log-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .log-card-header h3 {
+    margin: 0;
+  }
+
+  .sleep-score-badge {
+    font-size: 13px;
+    font-weight: bold;
+    background: #eef6ff;
+    border: 1px solid #2c6cff;
+    color: #2c6cff;
+    border-radius: 6px;
+    padding: 4px 10px;
+    white-space: nowrap;
   }
 
   .muted {
     color: #555;
     font-size: 14px;
-  }
-
-  .score {
-    margin-top: 10px;
-    font-size: 16px;
-    font-weight: bold;
   }
 
   .actions {
@@ -114,15 +126,16 @@
 
   {% for log in logs %}
     <div class="log-card">
-      <h3>{{ log.date }}</h3>
+      <div class="log-card-header">
+        <h3>{{ log.date }}</h3>
+        {% if log.sleep_score is not None %}
+          <span class="sleep-score-badge">Sleep Score: {{ log.sleep_score }}</span>
+        {% endif %}
+      </div>
 
       <div class="muted">
         Sleep: {{ log.sleep_hours }} hrs | Quality: {{ log.sleep_quality }} |
         Wellness: {{ log.wellness }} | Stress: {{ log.stress }}
-      </div>
-
-      <div class="score">
-        Total Score: {{ log.grand_total }}
       </div>
 
       {% if log.notes %}
