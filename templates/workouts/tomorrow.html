@@ -66,6 +66,50 @@
     margin: 0;
   }
 
+  .section-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 12px 0;
+    text-align: center;
+  }
+
+  .suggestions-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .suggestion-card {
+    flex: 1;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 18px 12px;
+    text-align: center;
+  }
+
+  .suggestion-card.REST     { border-top: 4px solid #757575; }
+  .suggestion-card.RECOVERY { border-top: 4px solid #2e7d32; }
+  .suggestion-card.EASY     { border-top: 4px solid #1565c0; }
+  .suggestion-card.MODERATE { border-top: 4px solid #e65100; }
+  .suggestion-card.HARD     { border-top: 4px solid #b71c1c; }
+
+  .suggestion-name {
+    font-size: 17px;
+    font-weight: bold;
+    color: #111;
+    margin: 0 0 6px 0;
+  }
+
+  .suggestion-duration {
+    font-size: 14px;
+    color: #444;
+    margin: 0;
+  }
+
   .stats-row {
     display: flex;
     gap: 14px;
@@ -124,12 +168,20 @@
     <p class="zone-label {{ zone }}">{{ zone_label }}</p>
 
     {% if zone == "REST" %}
-      <p class="zone-meta">Take the day off. Let your body recover fully.</p>
+      <p class="zone-meta">Light recovery only — keep it easy.</p>
     {% else %}
-      <p class="zone-meta">
-        <strong>{{ dur_low }}–{{ dur_high }} min</strong> &nbsp;|&nbsp; RPE {{ rpe_range }}
-      </p>
+      <p class="zone-meta">RPE {{ rpe_range }}</p>
     {% endif %}
+  </div>
+
+  <p class="section-title">Suggested Workouts</p>
+  <div class="suggestions-row">
+    {% for s in suggestions %}
+      <div class="suggestion-card {{ zone }}">
+        <p class="suggestion-name">{{ s.name }}</p>
+        <p class="suggestion-duration">{{ s.low }}–{{ s.high }} min</p>
+      </div>
+    {% endfor %}
   </div>
 
   {% if avg_sleep_hours or avg_sleep_quality %}

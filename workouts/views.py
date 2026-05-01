@@ -1,9 +1,37 @@
 from datetime import date, timedelta
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import DailyLogForm, ActivityForm
 from .models import DailyLog, Activity
+
+
+# Per-activity scaling applied to the global zone duration range.
+# 1.0 = same as zone baseline; >1 means typically a longer session,
+# <1 means typically shorter (e.g. swim is more intense per minute).
+ACTIVITY_DURATION_MULT = {
+    "Run":          1.00,
+    "Bike":         1.10,
+    "Moutain Bike": 1.10,  # matches the spelling in Activity.ACTIVITY_CHOICES
+    "Hike":         1.20,
+    "Walk":         1.10,
+    "Swim":         0.70,
+    "Lift":         1.20,
+    "Yoga":         0.85,
+    "Sport":        1.00,
+    "Other":        1.00,
+}
+
+
+def _scale_duration(activity_type, low, high):
+    """Scale the (low, high) zone range by the activity's multiplier, rounded to nearest 5 min."""
+    mult = ACTIVITY_DURATION_MULT.get(activity_type, 1.0)
+    new_low = max(5, round(low * mult / 5) * 5)
+    new_high = round(high * mult / 5) * 5
+    if new_high <= new_low:
+        new_high = new_low + 5
+    return new_low, new_high
 
 # Create your views here.
 
@@ -191,6 +219,35 @@ def tomorrow_view(request):
         "HARD":     "8–9",
     }
 
+    # --- Suggested workouts (up to 3 cards) ---
+    if zone == "REST":
+        # Light recovery only — fixed list of low-effort options
+        suggestions = [
+            {"name": "Walk",    "low": 20, "high": 30},
+            {"name": "Stretch", "low": 15, "high": 20},
+            {"name": "Yoga",    "low": 25, "high": 30},
+        ]
+    else:
+        thirty_days_ago = today - timedelta(days=29)
+        top_types = list(
+            Activity.objects
+            .filter(daily_log__user=request.user, daily_log__date__gte=thirty_days_ago)
+            .values("activity_type")
+            .annotate(count=Count("id"))
+            .order_by("-count", "activity_type")[:3]
+        )
+        if not top_types:
+            # User has no activity history in the last 30 days — fall back to a single generic card
+            suggestions = [
+                {"name": f"{zone_labels[zone]} Workout", "low": dur_low, "high": dur_high},
+            ]
+        else:
+            suggestions = []
+            for entry in top_types:
+                atype = entry["activity_type"]
+                low, high = _scale_duration(atype, dur_low, dur_high)
+                suggestions.append({"name": atype, "low": low, "high": high})
+
     context = {
         "tomorrow": tomorrow,
         "zone": zone,
@@ -198,6 +255,7 @@ def tomorrow_view(request):
         "rpe_range": rpe_ranges[zone],
         "dur_low": dur_low,
         "dur_high": dur_high,
+        "suggestions": suggestions,
         "has_today_log": has_today_log,
         "avg_sleep_hours": round(avg_sleep_hours, 1) if avg_sleep_hours is not None else None,
         "avg_sleep_quality": round(avg_sleep_quality, 1) if avg_sleep_quality is not None else None,
