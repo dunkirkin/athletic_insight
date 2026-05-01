@@ -13,9 +13,18 @@ class DailyLog(models.Model):
     date = models.DateField()
     sleep_hours = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     # limiting the user input to 1-10 for sleep quality, wellness, and stress
-    sleep_quality = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
-    wellness = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
-    stress = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+    sleep_quality = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
+    )
+    wellness = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
+    )
+    stress = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
+    )
     
     notes = models.TextField(blank=True)
 
@@ -82,11 +91,10 @@ class Activity(models.Model):
     #This line makes it so each activity belongs to one daily log
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_CHOICES)
     duration_min = models.PositiveIntegerField()
-    # limiting user input to 1-10 for rpe too
-    rpe = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
-    ) #rpe= Rate of Perceived Exertion so how hard they think it was
+    rpe = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
+    )
     distance = models.FloatField(null=True, blank=True)
     distance_unit = models.CharField(max_length=10, choices=DISTANCE_UNITS, default="Miles", null=True, blank=True)
     

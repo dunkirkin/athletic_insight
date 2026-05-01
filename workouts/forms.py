@@ -6,6 +6,9 @@ class DailyLogForm(forms.ModelForm):
     class Meta:
         model = DailyLog
         fields = ["date", "sleep_hours", "sleep_quality", "wellness", "stress", "notes"]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
+        }
         
 # allows user to input their activites
 class ActivityForm(forms.ModelForm):
